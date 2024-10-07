@@ -1,37 +1,25 @@
 import pygame
 import random
+
 pygame.init()
 
-
-WIDTH = 1280
-HEIGHT = 720
+WIDTH, HEIGHT = 1280, 720
 running = True
 FPS = 40
 
-COLOR1 = "white"
-COLOR2 = "white"
-COLOR3 = "white"
-COLOR4 = "white"
-
-X_POS_BOTTOM = 580
-X_POS_TOP = 580
-Y_POS_RIGHT = 350
-Y_POS_LEFT = 350
-PLAYER_VAL_RIGHT = 0
-PLAYER_VAL_LEFT = 0
-
-BALL_X = random.randint(10, 1270)
-BALL_Y = random.randint(10, 30)
-BALL_VAL_x = 2
-BALL_VAL_Y = 2
-
+COLORS = ["white", "white", "white", "white"]
+X_POS_BOTTOM, X_POS_TOP = 580, 580
+Y_POS_RIGHT, Y_POS_LEFT = 350, 350
 VAL = 0
 
-CHANCE = ["RIGHT","TOP","LEFT",   "BOTTOM"]
-GAME_OVER = pygame.image.load('main.jpg')
+BALL_X, BALL_Y = random.randint(10, 1270), random.randint(10, 30)
+BALL_VEL_X, BALL_VEL_Y = 2, 2
+
+CHANCE = ["RIGHT", "TOP", "LEFT", "BOTTOM"]
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -47,55 +35,46 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 VAL = 0
 
-    if CHANCE[-1]=="BOTTOM":
-        COLOR1="green"
-        COLOR2="white"
-        COLOR3="white"
-        COLOR4="white"
-    elif CHANCE[-1]=="RIGHT":
-        COLOR1="white"
-        COLOR2="green"
-        COLOR3="white"
-        COLOR4="white"
-    elif CHANCE[-1]=="TOP":
-        COLOR1="white"
-        COLOR2="white"
-        COLOR3="green"
-        COLOR4="white"
-    elif CHANCE[-1]=="LEFT":
-        COLOR1="white"
-        COLOR2="white"
-        COLOR3="white"
-        COLOR4="green"
+    # Reset colors to white
+    COLORS = ["white", "white", "white", "white"]
+    
+    # Set active paddle color to green
+    if CHANCE[-1] == "BOTTOM":
+        COLORS[0] = "green"
+    elif CHANCE[-1] == "RIGHT":
+        COLORS[1] = "green"
+    elif CHANCE[-1] == "TOP":
+        COLORS[2] = "green"
+    elif CHANCE[-1] == "LEFT":
+        COLORS[3] = "green"
 
     screen.fill("#212121")
     pygame.draw.circle(screen, "red", (BALL_X, BALL_Y), 10)
-    pygame.draw.rect(screen, COLOR1, (X_POS_BOTTOM%WIDTH, 700, 120, 20))
-    pygame.draw.rect(screen, COLOR2, (WIDTH-20, Y_POS_RIGHT%HEIGHT, 20, 120))
-    pygame.draw.rect(screen, COLOR3, (X_POS_TOP%WIDTH, 0, 120, 20))
-    pygame.draw.rect(screen, COLOR4, (0, Y_POS_LEFT%HEIGHT, 20, 120))
+    pygame.draw.rect(screen, COLORS[0], (X_POS_BOTTOM, HEIGHT-20, 120, 20))
+    pygame.draw.rect(screen, COLORS[1], (WIDTH-20, Y_POS_RIGHT, 20, 120))
+    pygame.draw.rect(screen, COLORS[2], (X_POS_TOP, 0, 120, 20))
+    pygame.draw.rect(screen, COLORS[3], (0, Y_POS_LEFT, 20, 120))
 
-    if BALL_X > WIDTH-20:
-        BALL_VAL_x = -4
-    elif BALL_X < 20:
-        BALL_VAL_x = 4
-    elif BALL_Y > HEIGHT-20:
-        BALL_VAL_Y = -4
-    elif BALL_Y < 20:
-        BALL_VAL_Y = 4
+    # Ball movement and collision
+    if BALL_X >= WIDTH - 20 or BALL_X <= 20:
+        BALL_VEL_X *= -1
+    if BALL_Y >= HEIGHT - 20 or BALL_Y <= 20:
+        BALL_VEL_Y *= -1
 
-    elif CHANCE[-1]=="BOTTOM":
-        X_POS_BOTTOM+=VAL
-    elif CHANCE[-1]=="RIGHT":
-        Y_POS_RIGHT-=VAL
-    elif CHANCE[-1]=="TOP":
-        X_POS_TOP+=VAL
-    elif CHANCE[-1]=="LEFT":
-        Y_POS_LEFT-=VAL
+    # Paddle movement
+    if CHANCE[-1] == "BOTTOM":
+        X_POS_BOTTOM = max(0, min(WIDTH - 120, X_POS_BOTTOM + VAL))
+    elif CHANCE[-1] == "RIGHT":
+        Y_POS_RIGHT = max(0, min(HEIGHT - 120, Y_POS_RIGHT - VAL))
+    elif CHANCE[-1] == "TOP":
+        X_POS_TOP = max(0, min(WIDTH - 120, X_POS_TOP + VAL))
+    elif CHANCE[-1] == "LEFT":
+        Y_POS_LEFT = max(0, min(HEIGHT - 120, Y_POS_LEFT - VAL))
 
+    BALL_X += BALL_VEL_X
+    BALL_Y += BALL_VEL_Y
 
-    BALL_X += BALL_VAL_x
-    BALL_Y +=BALL_VAL_Y
     pygame.display.flip()
     clock.tick(FPS)
+
 pygame.quit()
